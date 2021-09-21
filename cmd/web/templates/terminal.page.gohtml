@@ -48,6 +48,11 @@
             </div>
         </div>
 
+        <input type="hidden" name="payment_intent" id="payment_intent">
+        <input type="hidden" name="payment_method" id="payment_method">
+        <input type="hidden" name="payment_amt" id="payment_amt">
+        <input type="hidden" name="payment_curr" id="payment_curr">
+
 
 </form>
 {{end}}
@@ -59,7 +64,7 @@
     const payButton = document.getElementById("pay-button")
     const processing = document.getElementById("processing-payment")
 
-    const stripe = Stripe('<PUBLISHABLE KEY>');
+    const stripe = Stripe('pk_test_51JbKKnSHO8XxJVPpoR1aNfP194YdEOjkvOtBmA7zn3VLDyhS1DURjHxX3AyqA2vZo9wJPDFneSNCzrXi5XVjs1Ys00YjhCvv2H');
     
     function hidePayButton() {
         payButton.classList.add("d-none")
@@ -67,6 +72,7 @@
     }
     
     function val() {
+        console.log("Calling val")
         let form = document.getElementById("charge-form");
         if(form.checkValidity() === false) {
             this.event.preventDefault();
@@ -75,7 +81,36 @@
             return
         }
         form.classList.add("was-validated");
-        hidePayButton()
+        hidePayButton(); 
+        
+        let amountToCharge = String(parseFloat(document.getElementById("amount").value) * 100)
+
+        let payload = {
+            amount: amountToCharge,
+            currency: 'cad'
+        }
+
+        const requestOptions = {
+            method: 'post',
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json'
+            }
+            body: JSON.stringify(payload)
+        }
+
+        fetch("http://localhost:4001/charge", requestOptions)
+            .then(resp => resp.text())
+            .then(resp => {
+                let data;
+                trt {
+                    data = JSON.parse(resp)
+                    console.log(data)
+                } catch (err) {
+                    console.log(err)
+                }
+
+            })
     }
 
     (() => {
